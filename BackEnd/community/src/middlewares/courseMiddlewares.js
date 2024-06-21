@@ -1,6 +1,6 @@
 const dotenv = require('dotenv')
 const { admin } = require('../Config/firebaseeconfig')
-const { Community, Post } = require('../models/community')
+const { Course } = require('../models/courses')
 
 dotenv.config()
 
@@ -13,9 +13,6 @@ async function userFromToken (req, res, next) {
   }
 
   try {
-    /*     const token = tokenHeader.split('Bearer ')[1]
-    console.log(`token : ${token}`) */
-
     const decodedToken = await admin.auth().verifyIdToken(token)
     console.log('Firebase ID token verified successfully:', decodedToken)
 
@@ -34,18 +31,18 @@ async function userFromToken (req, res, next) {
 
 async function checkIsOwner (req, res, next) {
   try {
-    const { communityId } = req.params
+    const { courseId } = req.params
     const userId = req.mongouserId
     const username = req.username
 
-    console.log(`Checking ownership for user ${userId} on community ${communityId}`)
+    console.log(`Checking ownership for user ${userId} on course ${courseId}`)
 
-    const community = await Community.findById(communityId).lean()
-    if (!community) {
-      return res.status(404).json({ error: 'Community not found' })
+    const course = await Course.findById(courseId).lean()
+    if (!course) {
+      return res.status(404).json({ error: 'Course not found' })
     }
 
-    req.userRole = (community.ownerID.toString() === userId) ? 'Admin' : 'Member'
+    req.userRole = (course.ownerID.toString() === userId) ? 'Admin' : 'Member'
     console.log(`UserName: ${username}`)
     console.log(`UserRole: ${req.userRole}`)
     next()
@@ -56,18 +53,9 @@ async function checkIsOwner (req, res, next) {
 }
 
 exports.validatePost = (req, res, next) => {
-  const { title, content, communityId } = req.body
-  if (!title || !content || !communityId) {
+  const { title, content, courseId } = req.body
+  if (!title || !content || !courseId) {
     return res.status(400).json({ error: 'Title and content are required' })
-  }
-  next()
-}
-
-exports.checkPostExists = (req, res, next) => {
-  const postId = req.params.id
-  const post = Post.find(post => post.id === parseInt(postId))
-  if (!post) {
-    return res.status(404).json({ error: 'Post not found' })
   }
   next()
 }

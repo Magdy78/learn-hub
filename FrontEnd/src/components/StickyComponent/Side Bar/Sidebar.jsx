@@ -9,14 +9,31 @@ const Sidebar = () => {
 
 
    const [isLoggedOut, setIsLoggedOut] = useState(false);
+   const [userRole, setUserRole] = useState('');
+
    const navigate  = useNavigate ();
    
    useEffect(() => {
+
+      const role = Cookies.get('userRole');
+      console.log("User role from cookie:", role);
+      setUserRole(role);
+
       if (isLoggedOut) {
          navigate('/login');
       }
    }, [isLoggedOut, navigate]);
 
+
+   const getDashboardLink = () => {
+      if (userRole === 'instructor') {
+        return '/INSTDashboard';
+      }
+      if (userRole === 'student') {
+        return '/STUDashboard';
+      }
+      return '/Dashboard';
+    };
 
 
    const logout = async () => {
@@ -38,7 +55,10 @@ const Sidebar = () => {
    
        console.log("Logged out successfully.");
        Cookies.remove('token'); 
+       Cookies.remove('userRole'); 
+
        setIsLoggedOut(true);
+       navigate("/Login")
    
      } catch (error) {
        console.error("Logout error:", error.message);
@@ -70,9 +90,7 @@ const Sidebar = () => {
                   </div>
                   <div class="flex items-center">
                      <div class="flex items-center ms-3">
-                     <button type="button" class="py-2.5 px-5 me-2 mb-2 text-sm font-medium text-gray-900 focus:outline-none rounded-lg border border-gray-200  dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">
-                            <a href="">Join a Zoom Meeting </a>
-                        </button>
+
 
                         <button type="button" class="py-2.5 px-5 me-2 mb-2 text-sm font-medium text-gray-900 focus:outline-none rounded-lg border border-gray-200  dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">
                         {/* <svg class="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 18">
@@ -121,7 +139,24 @@ const Sidebar = () => {
                      </Link>
                   </li>
                   {/* ================Courses==================== */}
+
+                  {userRole === 'instructor' && (
+              <li>
+                <Link to={'/MyCourses'}>
+                  <a href="MyCourses" className="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
+                    <svg className="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M8.5 3a3 3 0 1 1 6 0h3a1.5 1.5 0 0 1 0 3H8.5a1.5 1.5 0 0 1 0-3h3a3 3 0 0 1-6 0zM2 8.5a1.5 1.5 0 0 1 3 0v3a1.5 1.5 0 1 1-3 0v-3zM4.5 12a1.5 1.5 0 0 1 0 3h3a1.5 1.5 0 1 1 0 3h-3a1.5 1.5 0 0 1 0-3h3a1.5 1.5 0 1 1 0-3h-3zM8.5 15a3 3 0 1 1 6 0h3a1.5 1.5 0 1 1 0 3H8.5a1.5 1.5 0 1 1 0-3h3a3 3 0 0 1-6 0z" />
+                    </svg>
+                    <span className="flex-1 ms-3 whitespace-nowrap">My Courses</span>
+                  </a>
+                </Link>
+              </li>
+            )}
+                              {userRole !== 'instructor' && (
+
                   <li>
+                  <Link to={'/Courses'}>
+
                      <a href="Courses" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
                         <svg class="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 18 18">
                            <path d="M6.143 0H1.857A1.857 1.857 0 0 0 0 1.857v4.286C0 7.169.831 8 1.857 8h4.286A1.857 1.857 0 0 0 8 6.143V1.857A1.857 1.857 0 0 0 6.143 0Zm10 0h-4.286A1.857 1.857 0 0 0 10 1.857v4.286C10 7.169 10.831 8 11.857 8h4.286A1.857 1.857 0 0 0 18 6.143V1.857A1.857 1.857 0 0 0 16.143 0Zm-10 10H1.857A1.857 1.857 0 0 0 0 11.857v4.286C0 17.169.831 18 1.857 18h4.286A1.857 1.857 0 0 0 8 16.143v-4.286A1.857 1.857 0 0 0 6.143 10Zm10 0h-4.286A1.857 1.857 0 0 0 10 11.857v4.286c0 1.026.831 1.857 1.857 1.857h4.286A1.857 1.857 0 0 0 18 16.143v-4.286A1.857 1.857 0 0 0 16.143 10Z" />
@@ -129,7 +164,12 @@ const Sidebar = () => {
                         <span class="flex-1 ms-3 whitespace-nowrap">Courses</span>
                         <span class="inline-flex items-center justify-center px-2 ms-3 text-sm font-medium text-gray-800 bg-gray-100 rounded-full dark:bg-gray-700 dark:text-gray-300">Pro</span>
                      </a>
+                     </Link>
+
                   </li>
+                              )}
+
+                  
                   {/* ================Chat==================== */}
                   <li>
                      <Link to={'/Inbox'}>
@@ -158,14 +198,16 @@ const Sidebar = () => {
 
                   </li>
                   {/* ================Dashboard==================== */}
-{/*                   <li>
+                  <Link to={getDashboardLink()}>
+                  <li>
                      <a href="Dashboard" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
                         <svg class="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 18 20">
                            <path d="M17 5.923A1 1 0 0 0 16 5h-3V4a4 4 0 1 0-8 0v1H2a1 1 0 0 0-1 .923L.086 17.846A2 2 0 0 0 2.08 20h13.84a2 2 0 0 0 1.994-2.153L17 5.923ZM7 9a1 1 0 0 1-2 0V7h2v2Zm0-5a2 2 0 1 1 4 0v1H7V4Zm6 5a1 1 0 1 1-2 0V7h2v2Z" />
                         </svg>
                         <span class="flex-1 ms-3 whitespace-nowrap">Dashboard</span>
                      </a>
-                  </li> */}
+                  </li> 
+                  </Link>
                   {/* ======================Ask Ai =========================*/}
                   <li>
                      <Link to={'/AI'}>
@@ -178,6 +220,8 @@ const Sidebar = () => {
                      </Link>
                   </li>
                   {/* ======================Packages========================== */}
+                  {userRole !== 'instructor' && (
+
                   <li>
                      <Link to={'/Packages'}>
                      <a href="Packages" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
@@ -188,8 +232,12 @@ const Sidebar = () => {
                      </a>
                      </Link>
                   </li>
+                              )}
+
                    {/* ================Contact==================== */}
                    <li className=''>
+                   <Link to={'/ContactUs'}>
+
                      <a href="ContactUs" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
                         <svg class="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
                            <path d="m17.418 3.623-.018-.008a6.713 6.713 0 0 0-2.4-.569V2h1a1 1 0 1 0 0-2h-2a1 1 0 0 0-1 1v2H9.89A6.977 6.977 0 0 1 12 8v5h-2V8A5 5 0 1 0 0 8v6a1 1 0 0 0 1 1h8v4a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1v-4h6a1 1 0 0 0 1-1V8a5 5 0 0 0-2.582-4.377ZM6 12H4a1 1 0 0 1 0-2h2a1 1 0 0 1 0 2Z" />
@@ -197,6 +245,8 @@ const Sidebar = () => {
                         <span class="flex-1 ms-3 whitespace-nowrap">Contact Us</span>
                         {/* <span class="inline-flex items-center justify-center w-3 h-3 p-3 ms-3 text-sm font-medium text-blue-800 bg-blue-100 rounded-full dark:bg-blue-900 dark:text-blue-300">3</span> */}
                      </a>
+                     </Link>
+
                   </li>
                   
 
@@ -205,6 +255,7 @@ const Sidebar = () => {
 
                   {/* ================Logout==================== */}
                   <li className='pt-24'>
+                     <Link to={'/Login'}>
                      <a href="login" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-red-800 group">
                         <svg class="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
                            <path d="M5 5V.13a2.96 2.96 0 0 0-1.293.749L.879 3.707A2.96 2.96 0 0 0 .13 5H5Z" />
@@ -213,6 +264,7 @@ const Sidebar = () => {
                         </svg>
                         <span class="flex-1 ms-3 whitespace-nowrap" onClick={logout}>Log Out</span>
                      </a>
+                     </Link>
                   </li>
                </ul>
             </div>
